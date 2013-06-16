@@ -11,6 +11,7 @@
   <body>
     <canvas id="myCanvas" width="578" height="200"></canvas>
     <script>
+
       var canvas = document.getElementById('myCanvas');
       var context = canvas.getContext('2d');
 
@@ -23,6 +24,7 @@
 	  context.strokeStyle = '#ff0000';
 	  context.lineCap = 'round';
       context.stroke();
+	  new Dragdealer('simple-slider');
     </script>
   </body>
 </html>
