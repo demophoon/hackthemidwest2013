@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <style>
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
+            canvas {
+                background: #000;
+                border:2px solid #333;
+            }
+
+            * {
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+        </style>
+        <script src='https://swww.tokbox.com/webrtc/v2.0/js/TB.min.js'></script>
+    </head>
+    <body>
+
+
+        <div id="myPublisherDiv"></div>
+        <script type="text/javascript">
+            // Initialize API key, session, and token...
+            // Think of a session as a room, and a token as the key to get in to the room
+            // Sessions and tokens are generated on your server and passed down to the client
+            var apiKey = "32390922";
+            var sessionId = "1_MX4zMjM5MDkyMn4xMjcuMC4wLjF-U3VuIEp1biAxNiAwMjoxNDo0OCBQRFQgMjAxM34wLjk0Njg4NjZ-";
+            var token = "";
+
+            // Initialize session, set up event listeners, and connect
+            var session = TB.initSession(sessionId);
+            session.addEventListener('sessionConnected', sessionConnectedHandler);
+            session.connect(apiKey, token);
+            
+            function sessionConnectedHandler(event) {
+                var publisher = TB.initPublisher(apiKey, 'myPublisherDiv');
+                session.publish(publisher);
+            }
+        </script>
+
+        <canvas id="paint" width="440" height="400"></canvas>
+
+        <script>
+            var host = "ws://localhost:9000";
+            var socket = new WebSocket(host);
+            socket.onopen = function() {
+                console.log("Success");
+            }
+            socket.onmessage = function(msg) {
+                console.log(msg);
+            }
+            socket.onclose = function() {
+                console.log("Disconnected");
+            }
+            function changeColor(x, y, r, g, b) {
+                var picObj = {
+                    'x': x,
+                    'y': y,
+                    'r': r,
+                    'g': g,
+                    'b': b,
+                }
+                console.log(picObj);
+                socket.send(JSON.stringify(picObj));
+            }
+        </script>
+
+        <script>
+                var canvas = document.querySelector('#paint');
+                var ctx = canvas.getContext('2d');
+
+                var img = new Image();
+                img.onLoad = function() {
+                    ctx.drawImage(img,0,0);
+                }
+                img.src="nyancat.gif";
+
+                var mouse = {x: 0, y: 0};
+
+                /* Mouse Capturing Work */
+                canvas.addEventListener('mousemove', function(e) {
+                    mouse.x = e.pageX - this.offsetLeft;
+                    mouse.y = e.pageY - this.offsetTop;
+                }, false);
+
+                /* Drawing on Paint App */
+                ctx.lineWidth = 25;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = 'red';
+
+                ctx.shadowBlur=10;
+                ctx.shadowOffsetX=0;
+                ctx.shadowColor="black";
+
+
+                canvas.addEventListener('mousedown', function(e) {
+                    ctx.beginPath();
+                    ctx.moveTo(mouse.x, mouse.y);
+                    ctx.strokeStyle = '#'+Math.floor(Math.random()*16777215).toString(16);
+                    canvas.addEventListener('mousemove', onPaint, false);
+                }, false);
+
+                canvas.addEventListener('mouseup', function() {
+                    canvas.removeEventListener('mousemove', onPaint, false);
+                }, false);
+
+                var onPaint = function() {
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
+                };
+
+
+
+            function resizeCanvas(){
+
+                var myCanvas = document.getElementById('paint');
+                var tempCanvas = document.createElement('canvas');
+                tempCanvas.id = 'canvas2';
+                tempCanvas.width = 22;
+                tempCanvas.height = 20;
+
+                document.body.appendChild(tempCanvas);
+
+                // save your canvas into temp canvas
+                tempCanvas.getContext('2d').drawImage(myCanvas, 0, 0);
+                tempCanvas.getContext('2d').drawImage(myCanvas, 0, 0, 30, 30);
+
+                console.log();
+                console.log(getPixel(tempCanvas, 0, 0).g);
+                console.log(getPixel(tempCanvas, 0, 0).b);
+            }
+
+
+            var lastImageData;
+            function getPixel(canvas) {
+                var imageData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+
+                var arrX = [];
+                for (var x=0; x<canvas.width; x+=1) {
+                    var arrY = [];
+                    for (var y=0; y<canvas.height; y+=1) {
+                        var index = (x + y * imageData.width) * 4;   
+                        var r = imageData.data[index+0];
+                        var g = imageData.data[index+1];
+                        var b = imageData.data[index+2];
+                        arrY.push([r, g, b]);
+                    }
+                    arrX.push(arrY);
+                }
+
+                for (var x=0; x<22; x+=1) {
+                    for (var y=0; y<20; y+=1) {
+                        var r = getPixel(tempCanvas, x, y).r
+                        var g = getPixel(tempCanvas, x, y).g
+                        var b = getPixel(tempCanvas, x, y).b
+                        changeColor(x, y, r, g, b);
+                    }
+                }
+                return this;
+            }
+        </script>
+
+    </body>
+</html>

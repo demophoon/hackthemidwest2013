@@ -1,23 +1,32 @@
+import json
+import time
+
+from twisted.internet import reactor
+from autobahn.websocket import (
+    WebSocketServerFactory,
+    WebSocketServerProtocol,
+    listenWS,
+)
+
 from arduino import Arduino
-from SimpleWebSocketServer import WebSocket, SimpleWebSocketServer
 
-arduino = Arduino("COM6", 9600)
+arduino = Arduino("COM6", 19200)
 
 
-class SimpleEcho(WebSocket):
+class EchoServerProtocol(WebSocketServerProtocol):
 
-    def handleMessage(self):
-        if self.data is None:
-            self.data = ''
+    def onMessage(self, msg, binary):
+        msg = json.loads(msg)
+        x = msg.get("x", 0)
+        y = msg.get("y", 0)
+        r = msg.get("r", 0)
+        g = msg.get("g", 0)
+        b = msg.get("b", 0)
+        arduino.change_color(x, y, r, g, b)
+        time.sleep(.02)
 
-        # echo message back to client
-        self.sendMessage(str(self.data))
-
-    def handleConnected(self):
-        print self.address, 'connected'
-
-    def handleClose(self):
-        print self.address, 'closed'
-
-server = SimpleWebSocketServer('', 8000, SimpleEcho)
-server.serveforever()
+if __name__ == '__main__':
+    factory = WebSocketServerFactory("ws://localhost:9000")
+    factory.protocol = EchoServerProtocol
+    listenWS(factory)
+    reactor.run()

@@ -9,7 +9,7 @@ Adafruit_NeoPixel strips[(int)WIDTH];
 Adafruit_NeoPixel strip;
 
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(19200);
     for (int x=0; x<WIDTH; x++) {
         strips[x] = Adafruit_NeoPixel(HEIGHT, 22 + x, NEO_GRB + NEO_KHZ800);
     }

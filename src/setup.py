@@ -3,7 +3,10 @@
 from setuptools import setup, find_packages
 
 requires = [
-    'pyserial',
+    "pyserial",
+    "Twisted==12.2.0",
+    "autobahn==0.5.9",
+    "wsgiref==0.1.2",
 ]
 
 setup(
