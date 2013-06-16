@@ -1,0 +1,15 @@
+<!DOCTYPE HTML> 
+ <html>
+ <div id="my-slider" class="dragdealer">
+	<div class="red-bar handle">drag me</div>
+</div>
+new Dragdealer('led_multiplier',
+{
+	steps: 5,
+	snap: true,
+	animationCallback: function(x, y)
+	{
+		ledMultiplier += x;
+	}
+});
+</html>

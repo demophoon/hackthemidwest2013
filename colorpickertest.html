@@ -1,0 +1,24 @@
+<!DOCTYPE HTML> 
+ <html>
+              <head>
+                <script type="text/javascript" 
+                        src="colorpicker.js"></script>
+                <style type="text/css">
+                  #picker { width: 200px; height: 200px }
+                  #slide { width: 30px; height: 200px }
+                </style>
+              </head>
+              <body>
+                <div id="picker"></div>
+                <div id="slide"></div>
+                <script type="text/javascript">
+                  ColorPicker(
+                    document.getElementById('slide'),
+                    document.getElementById('picker'),
+                    function(hex, hsv, rgb) {
+                      document.body.style.backgroundColor = hex;
+                    });
+                </script>
+              </body>
+            </html>
+            
