@@ -19,12 +19,7 @@ void setup() {
     }
 }
 
-int incrementLoop = 0;
 void loop() {
-  strips[incrementLoop++].show();
-  if (incrementLoop > WIDTH)
-    incrementLoop = 0;
-  delay(5);
 }
 
 char msg[5];
@@ -41,6 +36,7 @@ void processMessage(){
     y--;
 
   strips[x].setPixelColor(y, strips[x].Color(r, g, b));
+  strips[x].show();
 }
 
 void serialEvent() {

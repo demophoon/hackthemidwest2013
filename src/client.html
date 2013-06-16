@@ -8,7 +8,6 @@
             }
             canvas {
                 background: #000;
-                border:2px solid #333;
             }
 
             * {
@@ -18,33 +17,21 @@
                 -moz-user-select: none;
                 -ms-user-select: none;
                 user-select: none;
-            }
+            }
         </style>
-        <script src='https://swww.tokbox.com/webrtc/v2.0/js/TB.min.js'></script>
+        <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
     </head>
     <body>
-
-
-        <div id="myPublisherDiv"></div>
-        <script type="text/javascript">
-            // Initialize API key, session, and token...
-            // Think of a session as a room, and a token as the key to get in to the room
-            // Sessions and tokens are generated on your server and passed down to the client
-            var apiKey = "32390922";
-            var sessionId = "1_MX4zMjM5MDkyMn4xMjcuMC4wLjF-U3VuIEp1biAxNiAwMjoxNDo0OCBQRFQgMjAxM34wLjk0Njg4NjZ-";
-            var token = "";
-
-            // Initialize session, set up event listeners, and connect
-            var session = TB.initSession(sessionId);
-            session.addEventListener('sessionConnected', sessionConnectedHandler);
-            session.connect(apiKey, token);
-            
-            function sessionConnectedHandler(event) {
-                var publisher = TB.initPublisher(apiKey, 'myPublisherDiv');
-                session.publish(publisher);
-            }
-        </script>
-
+        <div class="container">
+            <div id="row">
+                <div class="span11"></div>
+            </div>
+        </div>
+        <script src="/jquery.qrcode-0.3.min.js"></script>
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+        <input type="color" id="colorpicker" />
+        <input type="button" onmousedown="resetCanvas()" value="Reset" />
         <canvas id="paint" width="440" height="400"></canvas>
 
         <script>
@@ -78,9 +65,15 @@
 
                 var img = new Image();
                 img.onLoad = function() {
-                    ctx.drawImage(img,0,0);
+                    setTimeout("drawImg()", 1500);
                 }
                 img.src="nyancat.gif";
+
+
+                function drawImg() {
+                    ctx.drawImage(img,0,0);
+                    resizeCanvas();
+                }
 
                 var mouse = {x: 0, y: 0};
 
@@ -104,12 +97,13 @@
                 canvas.addEventListener('mousedown', function(e) {
                     ctx.beginPath();
                     ctx.moveTo(mouse.x, mouse.y);
-                    ctx.strokeStyle = '#'+Math.floor(Math.random()*16777215).toString(16);
+                    ctx.strokeStyle = $("#colorpicker").val();
                     canvas.addEventListener('mousemove', onPaint, false);
                 }, false);
 
                 canvas.addEventListener('mouseup', function() {
                     canvas.removeEventListener('mousemove', onPaint, false);
+                    resizeCanvas();
                 }, false);
 
                 var onPaint = function() {
@@ -140,6 +134,8 @@
 
 
             var lastImageData;
+            var reset = false;
+
             function getPixel(canvas) {
                 var imageData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
 
@@ -151,20 +147,28 @@
                         var r = imageData.data[index+0];
                         var g = imageData.data[index+1];
                         var b = imageData.data[index+2];
+
+                        if (reset || lastImageData != undefined && (lastImageData[x][y][0] != r ||
+                                lastImageData[x][y][1] != g ||
+                                lastImageData[x][y][2] != b)) {
+                            changeColor(x, y, r, g, b);
+                        }
                         arrY.push([r, g, b]);
                     }
                     arrX.push(arrY);
                 }
-
-                for (var x=0; x<22; x+=1) {
-                    for (var y=0; y<20; y+=1) {
-                        var r = getPixel(tempCanvas, x, y).r
-                        var g = getPixel(tempCanvas, x, y).g
-                        var b = getPixel(tempCanvas, x, y).b
-                        changeColor(x, y, r, g, b);
-                    }
+                lastImageData = arrX;
+                if (reset) {
+                    reset = false;
                 }
+
                 return this;
+            }
+
+            function resetCanvas() {
+                reset = true;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                resizeCanvas();
             }
         </script>
 
