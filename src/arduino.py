@@ -9,9 +9,9 @@ class Arduino():
         self.serial = serial.Serial(serial_port, serial_baud)
 
     def change_color(self, x, y, r, g, b):
-        r = int(r/7)
-        g = int(g/7)
-        b = int(b/7)
+        r = int(r/3)
+        g = int(g/3)
+        b = int(b/3)
 
         command = ""
         command += chr(x)
